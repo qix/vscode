@@ -330,16 +330,25 @@ export class TitlebarPart extends Part implements ITitleService {
 	}
 
 	public setTitle(title: string): void {
+    global.pegvoiceUpdateTitle = () => {
+      const states = global.pegvoiceContext || [];
+      const suffix = ` ~~context~~${states.join('~')}~~pegvoice-vscode`;
 
-		// Always set the native window title to identify us properly to the OS
-		window.document.title = title;
+      // Always set the native window title to identify us properly to the OS
+      window.document.title = title + suffix;
 
-		// Apply if we can
-		if (this.title) {
-			this.title.text(title);
-		} else {
-			this.pendingTitle = title;
-		}
+      // Apply if we can
+      if (this.title) {
+        this.title.text(title + suffix);
+      }
+      console.log('Update title');
+    };
+    
+    if (this.title) {
+      global.pegvoiceUpdateTitle();
+    } else {
+      this.pendingTitle = title;
+    }
 	}
 
 	public setRepresentedFilename(path: string): void {

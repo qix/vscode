@@ -30,6 +30,20 @@ export class Context implements IContext {
 		// console.log('SET ' + key + ' = ' + value + ' ON ' + this._id);
 		if (this._value[key] !== value) {
 			this._value[key] = value;
+      console.log(`SAW ${key} ${value}`);
+      global.pegvoiceContext = global.pegvoiceContext || [];
+      const index = global.pegvoiceContext.indexOf(key);
+      if (value) {
+        if (index < 0) {
+          global.pegvoiceContext.push(key);
+        }
+      } else {
+        if (index >= 0) {
+          global.pegvoiceContext.splice(index, 1);
+        }
+      }
+      (global.pegvoiceUpdateTitle || (()=>{}))();
+      console.log(global.pegvoiceContext);
 			return true;
 		}
 		return false;
@@ -39,6 +53,14 @@ export class Context implements IContext {
 		// console.log('REMOVE ' + key + ' FROM ' + this._id);
 		if (key in this._value) {
 			delete this._value[key];
+      console.log(`DELET ${key}`);
+      global.pegvoiceContext = global.pegvoiceContext || [];
+      const index = global.pegvoiceContext.indexOf(key);
+      if (index >= 0) {
+        global.pegvoiceContext.splice(index, 1);
+      }
+      (global.pegvoiceUpdateTitle || (()=>{}))();
+      console.log(global.pegvoiceContext);
 			return true;
 		}
 		return false;

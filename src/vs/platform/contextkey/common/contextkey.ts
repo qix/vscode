@@ -518,7 +518,13 @@ export class RawContextKey<T> extends ContextKeyDefinedExpr {
 	}
 
 	public getValue(target: IContextKeyService): T {
-		return target.getContextKeyValue<T>(this.key);
+		const value = target.getContextKeyValue<T>(this.key);
+    if (value) {
+      global.pegvoiceContext.add(this.key);
+    } else {
+      global.pegvoiceContext.remove(this.key);
+    }
+    return value;
 	}
 
 	public toNegated(): ContextKeyExpr {
