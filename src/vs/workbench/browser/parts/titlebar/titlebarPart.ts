@@ -167,6 +167,27 @@ export class TitlebarPart extends Part implements ITitleService {
 	private doUpdateTitle(): void {
 		const title = this.getWindowTitle();
 
+    (global as any).pegvoiceUpdateTitle = () => {
+      const states: string[] = (global as any).pegvoiceContext || [];
+      const suffix = ` ~~context~~${states.filter(state => [
+        "inDebugMode",
+        "editorTextFocus",
+        "editorReadonly",
+        "editorHasSelection",
+        "findWidgetVisible",
+        "suggestWidgetMultipleSuggestions",
+        "terminalFocus",
+        "editorHasRenameProvider",
+        "filesExplorerFocus",
+        "inSnippetMode",
+        "replaceActive"
+      ].includes(state)).sort().join('~')}~~pegvoice-vscode`;
+
+      window.document.title = title + suffix;
+			this.title.innerText = title + suffix;
+    };
+
+
 		// Always set the native window title to identify us properly to the OS
 		let nativeTitle = title;
 		if (!trim(nativeTitle)) {
@@ -176,7 +197,7 @@ export class TitlebarPart extends Part implements ITitleService {
 
 		// Apply custom title if we can
 		if (this.title) {
-			this.title.innerText = title;
+      (global as any).pegvoiceUpdateTitle();
 		} else {
 			this.pendingTitle = title;
 		}
