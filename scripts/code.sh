@@ -13,7 +13,7 @@ else
 fi
 
 function code() {
-	cd "$ROOT"
+	pushd "$ROOT"
 
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		NAME=`node -p "require('./product.json').nameLong"`
@@ -50,7 +50,8 @@ function code() {
 	export VSCODE_LOGS=
 
 	# Launch Code
-	exec "$CODE" . --no-sandbox "$@"
+  popd
+	exec "$ROOT/$CODE" "$ROOT" --no-sandbox "$@"
 }
 
 function code-wsl()
