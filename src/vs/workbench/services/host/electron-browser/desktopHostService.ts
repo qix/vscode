@@ -16,6 +16,7 @@ import { INativeWorkbenchEnvironmentService } from 'vs/workbench/services/enviro
 export class DesktopHostService extends Disposable implements IHostService {
 
 	_serviceBrand: undefined;
+	private focused: boolean = document.hasFocus();
 
 	constructor(
 		@IElectronService private readonly electronService: IElectronService,
@@ -27,12 +28,24 @@ export class DesktopHostService extends Disposable implements IHostService {
 
 	get onDidChangeFocus(): Event<boolean> { return this._onDidChangeFocus; }
 	private _onDidChangeFocus: Event<boolean> = Event.latch(Event.any(
-		Event.map(Event.filter(this.electronService.onWindowFocus, id => id === this.environmentService.configuration.windowId), () => this.hasFocus),
-		Event.map(Event.filter(this.electronService.onWindowBlur, id => id === this.environmentService.configuration.windowId), () => this.hasFocus)
+		Event.map(Event.filter(this.electronService.onWindowFocus, id => {
+			if(id === this.environmentService.configuration.windowId) {
+				this.focused = true;
+				return true;
+			}
+			return false;
+		}), () => this.hasFocus),
+		Event.map(Event.filter(this.electronService.onWindowBlur, id => {
+			if(id === this.environmentService.configuration.windowId) {
+				this.focused = false;
+				return true;
+			}
+			return false;
+		}), () => this.hasFocus)
 	));
 
 	get hasFocus(): boolean {
-		return document.hasFocus();
+		return this.focused;
 	}
 
 	async hadLastFocus(): Promise<boolean> {
